@@ -1,0 +1,97 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: medikiosk-backend
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 60MB
+
+  datasource:
+    url: jdbc:postgresql://dpg-da7j69qfngtc73fmffug-a.oregon-postgres.render.com:5432/medikiosk_db_cyeh
+    username: medikiosk_db_cyeh_user
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 5000ms
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+
+jwt:
+  secret: dGhlLXF1aWNrLWJyb3duLWZveC1qdW1wcy1vdmVyLXRoZS1sYXp5LWRvZy1hbmQtdW5pcXVlLWtleS1mb3ItbWVkaWtpb3NrLXNpaC0yNjA0Nw==
+  expiration-ms: 3600000
+  refresh-expiration-ms: 86400000
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: medikiosk-documents
+
+session:
+  inactivity-timeout-minutes: 480
+  max-duration-minutes: 480
+  cleanup-delay-minutes: 5
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:demo}
+  api-key: ${CLOUDINARY_API_KEY:123456789012345}
+  api-secret: ${CLOUDINARY_API_SECRET:demo_secret_key}
+
+fastapi:
+  base-url: https://clinical-interview-ai-1.onrender.com
+  timeout-asr-ms: 10000
+  timeout-ocr-ms: 30000
+  timeout-interview-ms: 30000
+  timeout-summary-ms: 45000
+
+abdm:
+  base-url: https://dev.abdm.gov.in/gateway/v0.5
+  client-id: SBXID_075578
+  client-secret: ${ABDM_CLIENT_SECRET:sample-abdm-secret}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+logging:
+  level:
+    com.medikiosk: DEBUG
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%X{correlationId}] %-5level %logger{36} - %msg%n"
