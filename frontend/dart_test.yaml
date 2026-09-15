@@ -1,0 +1,9 @@
+# Tests tagged `network` call the deployed backend and OCR service. They are
+# real and worth running, but a cold instance or a slow link made every local
+# and CI run flaky, so they are opt-in:
+#
+#   flutter test                 # deterministic suite
+#   flutter test --tags network  # plus the live end-to-end checks
+tags:
+  network:
+    skip: "Calls the deployed backend — run with: flutter test --tags network"
