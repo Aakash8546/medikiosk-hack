@@ -1,0 +1,24 @@
+# Build & Temp Artifacts
+target/
+**/target/
+build/
+**/build/
+dist/
+**/.dart_tool/
+**/venv/
+**/__pycache__/
+*.jar
+*.zip
+
+# Environment & Local Secrets
+*.env
+.env.*
+!.env.example
+*.log
+sessions.db
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
