@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: medikiosk-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    command: caddy reverse-proxy --from medikioskbackend.duckdns.org --to backend:8081
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: medikiosk-redis
+    restart: always
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ml-service:
+    build: ./ml-service
+    container_name: medikiosk-ml-service
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_API_KEY_2=${GROQ_API_KEY_2}
+      - GROQ_API_KEY_3=${GROQ_API_KEY_3}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_API_KEY_2=${OPENROUTER_API_KEY_2}
+      - OPENROUTER_API_KEY_3=${OPENROUTER_API_KEY_3}
+      - OCR_MODEL=${OCR_MODEL}
+      - OPENROUTER_PAID_FALLBACK=${OPENROUTER_PAID_FALLBACK}
+    volumes:
+      - ml_data:/app
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medikiosk-backend
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - FASTAPI_BASE_URL=http://ml-service:8000
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      ml-service:
+        condition: service_started
+
+volumes:
+  ml_data:
+  caddy_data:
+  caddy_config:
